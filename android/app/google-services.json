@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "278230435385",
+    "firebase_url": "https://social-net-15251-default-rtdb.firebaseio.com",
+    "project_id": "social-net-15251",
+    "storage_bucket": "social-net-15251.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278230435385:android:c9c75740e74bfdd37dafe8",
+        "android_client_info": {
+          "package_name": "com.sn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "278230435385-5ot0jhr69piqkr9keo4i12u0tgcfftdp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCixcrX3L4TCV2UDwdjCp7cFgLoZ79LR18"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "278230435385-5ot0jhr69piqkr9keo4i12u0tgcfftdp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
