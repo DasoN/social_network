@@ -46,6 +46,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sn/services/database.dart';
 
 class AuthService {
   final FirebaseAuth _fAuth;
@@ -53,22 +54,39 @@ class AuthService {
 
   Stream<User> get authStateChanges => _fAuth.authStateChanges();
 
-  Future<String> signIn({String email, String password}) async {
+  Future<String> signOut() async {
+    _fAuth.signOut();
+    return 'SignOut';
+  }
+
+  Future<User> signIn({String email, String password}) async {
     try {
-      await _fAuth.signInWithEmailAndPassword(email: email, password: password);
-      return 'Sign in';
+      UserCredential result = await _fAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+      User user = result.user;
+      return user;
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return null;
     }
   }
 
-  Future<String> signUp({String email, String password}) async {
+  Future<User> signUp({String email, String password, String name}) async {
     try {
+      User user;
       await _fAuth.createUserWithEmailAndPassword(
           email: email, password: password);
-      return 'Sign up';
+      user = await _fAuth.currentUser;
+      await user.reload();
+      user = await _fAuth.currentUser;
+      await user.updateProfile(displayName: name);
+      await user.reload();
+      print('HERE HERE HERE HERE HERE HERE ');
+      print(user);
+
+      DataBase.addUser(user: user, name: name);
+      return user;
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return null;
     }
   }
 }
