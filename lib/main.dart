@@ -40,7 +40,8 @@ class MyApp extends StatelessWidget {
           // When navigating to the "/" route, build the FirstScreen widget.
           '/': (context) => MyHomePage(),
           // When navigating to the "/second" route, build the SecondScreen widget.
-          '/second': (context) => ProfileUser(),
+          '/profileUser': (context) => ProfileUser(),
+          '/messageChat': (context) => MessageChat()
         },
       ),
     );
@@ -240,9 +241,56 @@ class _MyHomePageState extends State<MyHomePage> {
                 : _selectedIndex == 1
                     ? Column(
                         children: [
-                          Center(
-                            child: Text('messaging'),
-                          )
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          Container(
+                            child: SizedBox(
+                              height: 200.0,
+                              child: new ListView.builder(
+                                scrollDirection: Axis.vertical,
+                                itemCount: allUsers.length,
+                                itemBuilder: (BuildContext ctxt, int index) {
+                                  return new OutlineButton(
+                                      borderSide: BorderSide(
+                                          width: 0.0, color: Colors.white),
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                            context, '/messageChat');
+                                      },
+                                      child: Container(
+                                          margin: EdgeInsets.only(
+                                              right: 10.0, left: 10.0),
+                                          height: 70,
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  Container(
+                                                    height: 50.0,
+                                                    width: 50.0,
+                                                    decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(60.0),
+                                                        color: Colors.purple),
+                                                  ),
+                                                  Text(allUsers[index]
+                                                      ['username'])
+                                                ],
+                                              ),
+                                              SizedBox()
+                                            ],
+                                          )));
+                                },
+                              ),
+                            ),
+                          ),
                         ],
                       )
                     : Center(
@@ -282,7 +330,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             width: 0.0, color: Colors.white),
                                         onPressed: () {
                                           Navigator.pushNamed(
-                                              context, '/second',
+                                              context, '/profileUser',
                                               arguments: {
                                                 'username': allUsers[index]
                                                         ['username']
@@ -484,6 +532,104 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+class MessageChat extends StatefulWidget {
+  @override
+  _MessageChatState createState() => _MessageChatState();
+}
+
+class _MessageChatState extends State<MessageChat> {
+  TextEditingController _controllerMessage;
+  Map<String, dynamic> _data = {};
+  @override
+  void initState() {
+    super.initState();
+    _controllerMessage = TextEditingController();
+  }
+
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(elevation: 50.0, backgroundColor: Colors.white54),
+        body: new StreamBuilder(
+          stream: FirebaseFirestore.instance.collection('messages').snapshots(),
+          builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
+            print('its' + snapshot.data.docs[0]['first']);
+            snapshot.data.docs.forEach((element) {
+              _data['firstPerson'] = element.data()['first'];
+              _data['secondPerson'] = element.data()['second'];
+              _data['messagesField'] = element.data()['messagesField'];
+            });
+            return Container(
+                margin: EdgeInsets.only(top: 20),
+                child: Container(
+                    child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Column(children: [
+                      Container(
+                        height: 20.0,
+                        width: 150.0,
+                        decoration: BoxDecoration(color: Colors.amber),
+                        child: Row(children: [
+                          Text(_data['firstPerson'] == null
+                              ? 'User'
+                              : _data['firstPerson']),
+                          SizedBox(width: 10.0),
+                          Text('message...')
+                        ]),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Container(
+                        height: 20.0,
+                        width: 150.0,
+                        decoration: BoxDecoration(color: Colors.amber),
+                        child: Row(children: [
+                          Text('User'),
+                          SizedBox(width: 10.0),
+                          Text('message...')
+                        ]),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Container(
+                        height: 20.0,
+                        width: 150.0,
+                        decoration: BoxDecoration(color: Colors.amber),
+                        child: Row(children: [
+                          Text('User'),
+                          SizedBox(width: 10.0),
+                          Text('message...')
+                        ]),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                    ]),
+                    Text('la'),
+                    TextField(
+                      controller: _controllerMessage,
+                      onChanged: (v) {
+                        print(v);
+                        print(snapshot.data.docs
+                            .where((element) =>
+                                element['first'] ==
+                                'CQSUGfjMM7U1Ur55S3VUYdfmlOi1')
+                            .toList());
+                      },
+                      decoration: InputDecoration(
+                          border: UnderlineInputBorder(),
+                          hintText: 'message...'),
+                    ),
+                  ],
+                )));
+          },
+        ));
+  }
+}
+
 class ProfileUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -565,16 +711,14 @@ class ProfileUser extends StatelessWidget {
                 width: 180.0,
                 height: 60.0,
                 child: OutlinedButton(
-                    child: Text('Add friend', style: TextStyle(fontSize: 20.0)),
+                    child: Text('Message to', style: TextStyle(fontSize: 20.0)),
                     style: OutlinedButton.styleFrom(
                       primary: Colors.white,
                       backgroundColor: Colors.indigo[500],
                       shadowColor: Colors.indigo[700],
                       elevation: 5,
                     ),
-                    onPressed: () {
-                      arguments['getFriend'](arguments['id']);
-                    }),
+                    onPressed: () {}),
               ),
             ],
           ),
