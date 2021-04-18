@@ -9,6 +9,7 @@ import 'package:sn/services/database.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 FirebaseFirestore firestore = FirebaseFirestore.instance;
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -16,6 +17,8 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -41,7 +44,6 @@ class MyApp extends StatelessWidget {
           '/': (context) => MyHomePage(),
           // When navigating to the "/second" route, build the SecondScreen widget.
           '/profileUser': (context) => ProfileUser(),
-          '/messageChat': (context) => MessageChat()
         },
       ),
     );
@@ -85,9 +87,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  String name = '';
-  List allUsers = ['jhkj'];
-  Map<String, dynamic> user = {'name': 'kalk;', 'id': 'ajkl'};
+  String name;
+  List allUsers;
+  Map<String, dynamic> user;
 
   setData(fbUser) {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
@@ -239,60 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   )
                 : _selectedIndex == 1
-                    ? Column(
-                        children: [
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          Container(
-                            child: SizedBox(
-                              height: 200.0,
-                              child: new ListView.builder(
-                                scrollDirection: Axis.vertical,
-                                itemCount: allUsers.length,
-                                itemBuilder: (BuildContext ctxt, int index) {
-                                  return new OutlineButton(
-                                      borderSide: BorderSide(
-                                          width: 0.0, color: Colors.white),
-                                      onPressed: () {
-                                        Navigator.pushNamed(
-                                            context, '/messageChat');
-                                      },
-                                      child: Container(
-                                          margin: EdgeInsets.only(
-                                              right: 10.0, left: 10.0),
-                                          height: 70,
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  Container(
-                                                    height: 50.0,
-                                                    width: 50.0,
-                                                    decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(60.0),
-                                                        color: Colors.purple),
-                                                  ),
-                                                  Text(allUsers[index]
-                                                      ['username'])
-                                                ],
-                                              ),
-                                              SizedBox()
-                                            ],
-                                          )));
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
+                    ? MessageChat()
                     : Center(
                         child: Column(
                           children: [
@@ -539,94 +488,77 @@ class MessageChat extends StatefulWidget {
 
 class _MessageChatState extends State<MessageChat> {
   TextEditingController _controllerMessage;
+  String messageName = '';
   Map<String, dynamic> _data = {};
   @override
   void initState() {
     super.initState();
     _controllerMessage = TextEditingController();
+    messageName = '';
   }
 
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(elevation: 50.0, backgroundColor: Colors.white54),
-        body: new StreamBuilder(
-          stream: FirebaseFirestore.instance.collection('messages').snapshots(),
-          builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
-            print('its' + snapshot.data.docs[0]['first']);
-            snapshot.data.docs.forEach((element) {
-              _data['firstPerson'] = element.data()['first'];
-              _data['secondPerson'] = element.data()['second'];
-              _data['messagesField'] = element.data()['messagesField'];
-            });
-            return Container(
-                margin: EdgeInsets.only(top: 20),
-                child: Container(
-                    child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+    return new StreamBuilder(
+      stream: FirebaseFirestore.instance.collection('messages').snapshots(),
+      builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
+        final fbUser = context.watch<User>();
+        return Container(
+            margin: EdgeInsets.only(top: 20),
+            child: Container(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                ListView(
+                  padding: const EdgeInsets.all(8),
                   children: [
-                    Column(children: [
-                      Container(
-                        height: 20.0,
-                        width: 150.0,
-                        decoration: BoxDecoration(color: Colors.amber),
-                        child: Row(children: [
-                          Text(_data['firstPerson'] == null
-                              ? 'User'
-                              : _data['firstPerson']),
-                          SizedBox(width: 10.0),
-                          Text('message...')
-                        ]),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Container(
-                        height: 20.0,
-                        width: 150.0,
-                        decoration: BoxDecoration(color: Colors.amber),
-                        child: Row(children: [
-                          Text('User'),
-                          SizedBox(width: 10.0),
-                          Text('message...')
-                        ]),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Container(
-                        height: 20.0,
-                        width: 150.0,
-                        decoration: BoxDecoration(color: Colors.amber),
-                        child: Row(children: [
-                          Text('User'),
-                          SizedBox(width: 10.0),
-                          Text('message...')
-                        ]),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                    ]),
-                    Text('la'),
-                    TextField(
-                      controller: _controllerMessage,
-                      onChanged: (v) {
-                        print(v);
-                        print(snapshot.data.docs
-                            .where((element) =>
-                                element['first'] ==
-                                'CQSUGfjMM7U1Ur55S3VUYdfmlOi1')
-                            .toList());
-                      },
-                      decoration: InputDecoration(
-                          border: UnderlineInputBorder(),
-                          hintText: 'message...'),
-                    ),
+                    Container(
+                      height: 50,
+                      color: Colors.amber[500],
+                      child: Column(children: [
+                        Container(
+                          height: 20.0,
+                          width: 150.0,
+                          decoration: BoxDecoration(color: Colors.amber),
+                          child: Row(children: [
+                            Text(messageName),
+                            SizedBox(width: 10.0),
+                            Text('message...')
+                          ]),
+                        ),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                      ]),
+                    )
                   ],
-                )));
-          },
-        ));
+                ),
+                TextField(
+                  controller: _controllerMessage,
+                  onChanged: (v) {},
+                  onSubmitted: (v) {
+                    FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(fbUser.uid)
+                        .get(GetOptions())
+                        .then((value) {
+                      FirebaseFirestore.instance
+                          .collection('messages')
+                          .doc()
+                          .set({
+                        'id': fbUser.uid,
+                        'username': value.data()['username'],
+                        'message': v,
+                      });
+                    });
+                  },
+                  decoration: InputDecoration(
+                      border: UnderlineInputBorder(), hintText: 'message...'),
+                ),
+              ],
+            )));
+      },
+    );
   }
 }
 
